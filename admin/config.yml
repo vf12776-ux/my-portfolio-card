@@ -1,0 +1,20 @@
+backend:
+  name: github
+  repo: vf12776-ux/имя-твоего-репозитория # <-- ЗАМЕНИ НА СВОЙ РЕПО!
+  branch: main
+
+media_folder: "assets/img" # Куда сохранять загруженные картинки
+public_folder: "/assets/img"
+
+collections:
+  - name: "settings"
+    label: "Настройки сайта"
+    files:
+      - name: "general"
+        label: "Главная страница"
+        file: "data/site.json" # Данные будут сохраняться в этот JSON
+        fields:
+          - { label: "Имя", name: "name", widget: "string" }
+          - { label: "Профессия", name: "title", widget: "string" }
+          - { label: "Описание", name: "description", widget: "text" }
+          - { label: "Фото профиля", name: "photo", widget: "image" }

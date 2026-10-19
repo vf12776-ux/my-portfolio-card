@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Имя Фамилия | Профессия</title>
+    <meta name="description" content="Сайт-визитка специалиста. Услуги, портфолио, контакты.">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    
+    <!-- Favicon (заглушка) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👋</text></svg>">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Шапка / Навигация -->
+    <header class="header">
+        <div class="container header__container">
+            <a href="#" class="logo">MyBrand</a>
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li><a href="#about" class="nav__link">Обо мне</a></li>
+                    <li><a href="#services" class="nav__link">Услуги</a></li>
+                    <li><a href="#portfolio" class="nav__link">Работы</a></li>
+                    <li><a href="#contact" class="nav__link btn-contact">Связаться</a></li>
+                </ul>
+            </nav>
+            <button class="burger-menu" aria-label="Меню">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Главный экран (Hero) -->
+    <section class="hero">
+        <div class="container hero__container">
+            <div class="hero__content">
+                <h1 class="hero__title">Привет, я <span class="highlight">Имя Фамилия</span></h1>
+                <p class="hero__subtitle">Специалист по [Ваша Ниша]. Помогаю бизнесу расти через [Ваш инструмент].</p>
+                <div class="hero__buttons">
+                    <a href="#contact" class="btn btn--primary">Обсудить проект</a>
+                    <a href="#portfolio" class="btn btn--outline">Смотреть кейсы</a>
+                </div>
+            </div>
+            <div class="hero__image-wrapper">
+                <img src="https://via.placeholder.com/400x400.png?text=Ваше+Фото" alt="Фото профиля" class="hero__img">
+            </div>
+        </div>
+    </section>
+
+    <!-- Обо мне -->
+    <section id="about" class="section about">
+        <div class="container">
+            <h2 class="section__title">Обо мне</h2>
+            <div class="about__grid">
+                <div class="about__text">
+                    <p>Здесь будет краткая биография. Например: "Более 5 лет опыта в сфере...".</p>
+                    <p>Мой подход основан на данных и креативе.</p>
+                    <div class="video-placeholder">
+                        <span>🎥 Видео-визитка (будет здесь)</span>
+                    </div>
+                </div>
+                <div class="about__stats">
+                    <div class="stat-item">
+                        <span class="stat-num">5+</span>
+                        <span class="stat-desc">Лет опыта</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num">50+</span>
+                        <span class="stat-desc">Проектов</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Услуги -->
+    <section id="services" class="section services">
+        <div class="container">
+            <h2 class="section__title">Чем я могу помочь</h2>
+            <div class="services__grid">
+                <div class="service-card">
+                    <div class="service-icon">🚀</div>
+                    <h3>Услуга 1</h3>
+                    <p>Описание услуги. Кратко и по делу.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💻</div>
+                    <h3>Услуга 2</h3>
+                    <p>Описание услуги. Кратко и по делу.</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📈</div>
+                    <h3>Услуга 3</h3>
+                    <p>Описание услуги. Кратко и по делу.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Портфолио -->
+    <section id="portfolio" class="section portfolio">
+        <div class="container">
+            <h2 class="section__title">Избранные работы</h2>
+            <div class="portfolio__grid">
+                <div class="portfolio-item">
+                    <img src="https://via.placeholder.com/600x400.png?text=Project+1" alt="Проект 1">
+                    <div class="portfolio-overlay">
+                        <h3>Название проекта</h3>
+                    </div>
+                </div>
+                <div class="portfolio-item">
+                    <img src="https://via.placeholder.com/600x400.png?text=Project+2" alt="Проект 2">
+                    <div class="portfolio-overlay">
+                        <h3>Название проекта</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Контакты -->
+    <section id="contact" class="section contact">
+        <div class="container contact__container">
+            <h2 class="section__title">Свяжитесь со мной</h2>
+            <p>Открыт к предложениям и сотрудничеству.</p>
+            
+            <div class="contact__links">
+                <a href="mailto:email@example.com" class="contact-link">📧 email@example.com</a>
+                <a href="tel:+79990000000" class="contact-link">📞 +7 (999) 000-00-00</a>
+                <a href="#" class="contact-link">✈️ Telegram</a>
+            </div>
+
+            <form class="contact-form" action="#" method="POST">
+                <input type="text" placeholder="Ваше имя" required>
+                <input type="email" placeholder="Ваш Email" required>
+                <textarea placeholder="Сообщение" rows="4"></textarea>
+                <button type="submit" class="btn btn--primary">Отправить</button>
+            </form>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Имя Фамилия. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <!-- ЕДИНСТВЕННЫЙ скрипт на странице -->
+    <script src="script.js"></script>
+</body>
+</html>
