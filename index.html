@@ -19,6 +19,7 @@
 <body>
 
     <!-- Шапка / Навигация -->
+        <!-- Шапка / Навигация -->
     <header class="header">
         <div class="container header__container">
             <a href="#" class="logo">MyBrand</a>
@@ -28,6 +29,8 @@
                     <li><a href="#services" class="nav__link">Услуги</a></li>
                     <li><a href="#portfolio" class="nav__link">Работы</a></li>
                     <li><a href="#contact" class="nav__link btn-contact">Связаться</a></li>
+                    <!-- КНОПКА УСТАНОВКИ (скрыта по умолчанию) -->
+                    <li><button id="install-btn" class="install-btn" style="display: none;">📲 Установить</button></li>
                 </ul>
             </nav>
             <button class="burger-menu" aria-label="Меню">
@@ -35,6 +38,11 @@
             </button>
         </div>
     </header>
+
+    <!-- Подсказка для iOS (скрыта по умолчанию) -->
+    <div id="ios-hint" class="ios-hint" style="display: none;">
+        💡 Чтобы установить приложение: нажмите кнопку <b>Поделиться</b> <span style="font-size:1.2em">⎋</span> и выберите <b>На экран «Домой»</b>
+    </div>
 
     <!-- Главный экран (Hero) -->
     <section class="hero">

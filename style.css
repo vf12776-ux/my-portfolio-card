@@ -284,3 +284,34 @@ img { max-width: 100%; display: block; }
     
     .about__grid { grid-template-columns: 1fr; }
 }
+
+/* --- PWA Install Button & iOS Hint --- */
+.install-btn {
+    background-color: #10b981; /* Зеленый цвет для установки */
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: none; /* Скрыта по умолчанию, управляется через JS */
+}
+
+.install-btn:hover {
+    background-color: #059669;
+    transform: translateY(-1px);
+}
+
+.ios-hint {
+    background-color: #fff3cd;
+    color: #856404;
+    text-align: center;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #ffeeba;
+    position: sticky;
+    top: 70px; /* Сразу под хедером */
+    z-index: 998;
+}
