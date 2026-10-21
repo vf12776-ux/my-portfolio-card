@@ -1,55 +1,58 @@
-const CACHE_VERSION = 'v15';
-const CACHE_NAME = `portfolio-card-${CACHE_VERSION}`;
-
+const CACHE_VERSION = 'v16';
+const CACHE_NAME = `my-pwa-cache-${CACHE_VERSION}`;
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './script.js',
   './manifest.json',
-  './offline.html',
-  './404.html',
-  './icon-192.png',
-  './icon-512.png'
+  './offline.html'
 ];
 
+// Установка SW и кэширование ресурсов
 self.addEventListener('install', event => {
-  self.skipWaiting();
+  console.log('[SW] Install');
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    Promise.all([
-      clients.claim(),
-      caches.keys().then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheName !== CACHE_NAME) return caches.delete(cacheName);
-          })
-        );
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('[SW] Кэш открыт');
+        return cache.addAll(urlsToCache);
       })
-    ])
+      .catch(error => {
+        console.error('[SW] Ошибка кэширования:', error);
+      })
   );
+  self.skipWaiting();
 });
 
+// Активация и очистка старого кэша
+self.addEventListener('activate', event => {
+  console.log('[SW] Activate');
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('[SW] Удаление старого кэша:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+// Перехват запросов
 self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(event.request)
+    caches.match(event.request)
       .then(response => {
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+        if (response) {
+          return response;
         }
-        return response;
-      })
-      .catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('./offline.html');
-        }
-        return caches.match(event.request);
+        return fetch(event.request);
       })
   );
 });
