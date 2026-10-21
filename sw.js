@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const CACHE_NAME = `portfolio-card-${CACHE_VERSION}`;
 const BASE = '/my-portfolio-card';
 
