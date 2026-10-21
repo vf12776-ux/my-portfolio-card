@@ -1,6 +1,7 @@
 // --- Логика PWA Installation ---
 let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
+// ВАЖНО: ID должен совпадать с HTML (install-btn через дефис)
+const installBtn = document.getElementById('install-btn');
 const iosHint = document.getElementById('ios-hint');
 
 // Проверка на iOS для показа подсказки
@@ -15,9 +16,7 @@ if (isIos()) {
 
 // Обработка события beforeinstallprompt (Android/Desktop Chrome)
 window.addEventListener('beforeinstallprompt', (e) => {
-  // Предотвращаем стандартное мини-инфо браузера
   e.preventDefault();
-  // Сохраняем событие для последующего вызова
   deferredPrompt = e;
   
   // Показываем нашу кастомную кнопку
@@ -54,7 +53,6 @@ window.addEventListener('appinstalled', () => {
 // --- Регистрация Service Worker ---
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // ВАЖНО: Относительный путь ./sw.js для работы в подпапке GitHub Pages
     navigator.serviceWorker.register('./sw.js')
       .then(registration => {
         console.log('[SW] Зарегистрирован успешно:', registration.scope);
@@ -64,15 +62,3 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
-
-// --- Загрузка данных из data/site.json (если нужно) ---
-// Пример загрузки, если ты используешь dynamic content
-/*
-fetch('./data/site.json')
-  .then(response => response.json())
-  .then(data => {
-    console.log('Данные сайта загружены:', data);
-    // Здесь код для подстановки данных в HTML
-  })
-  .catch(error => console.error('Ошибка загрузки JSON:', error));
-*/
