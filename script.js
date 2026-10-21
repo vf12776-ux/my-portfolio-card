@@ -1,10 +1,8 @@
 // --- Логика PWA Installation ---
 let deferredPrompt;
-// ВАЖНО: ID должен совпадать с HTML (install-btn через дефис)
 const installBtn = document.getElementById('install-btn');
 const iosHint = document.getElementById('ios-hint');
 
-// Проверка на iOS для показа подсказки
 const isIos = () => {
   const userAgent = window.navigator.userAgent.toLowerCase();
   return /iphone|ipad|ipod/.test(userAgent);
@@ -14,37 +12,27 @@ if (isIos()) {
   if (iosHint) iosHint.style.display = 'block';
 }
 
-// Обработка события beforeinstallprompt (Android/Desktop Chrome)
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  
-  // Показываем нашу кастомную кнопку
   if (installBtn) {
     installBtn.style.display = 'block';
     console.log('[PWA] Кнопка установки показана');
+    updateDebug('PWA PROMPT СРАБОТАЛ!');
   }
 });
 
-// Обработчик клика по кнопке установки
 if (installBtn) {
   installBtn.addEventListener('click', async () => {
     if (!deferredPrompt) return;
-    
-    // Показываем нативное модальное окно установки
     deferredPrompt.prompt();
-    
-    // Ждем выбора пользователя
     const { outcome } = await deferredPrompt.userChoice;
     console.log(`[PWA] Пользователь ${outcome}`);
-    
-    // Скрываем кнопку после попытки установки
     installBtn.style.display = 'none';
     deferredPrompt = null;
   });
 }
 
-// Скрытие кнопки, если приложение уже установлено
 window.addEventListener('appinstalled', () => {
   if (installBtn) installBtn.style.display = 'none';
   deferredPrompt = null;
@@ -53,12 +41,30 @@ window.addEventListener('appinstalled', () => {
 // --- Регистрация Service Worker ---
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
+    navigator.serviceWorker.register('/my-portfolio-card/sw.js')
       .then(registration => {
         console.log('[SW] Зарегистрирован успешно:', registration.scope);
+        updateDebug('SW OK: ' + registration.scope);
       })
       .catch(error => {
         console.log('[SW] Ошибка регистрации:', error);
+        updateDebug('SW ОШИБКА: ' + error);
       });
   });
 }
+
+// --- ЭКРАННАЯ ДИАГНОСТИКА (Увидишь на телефоне) ---
+function updateDebug(msg) {
+  let debugDiv = document.getElementById('pwa-debug');
+  if (!debugDiv) {
+    debugDiv = document.createElement('div');
+    debugDiv.id = 'pwa-debug';
+    debugDiv.style.cssText = 'position:fixed; bottom:0; left:0; background:#ff0000; color:#ffffff; padding:15px; z-index:99999; font-size:14px; font-weight:bold; width:100%; text-align:center;';
+    document.body.appendChild(debugDiv);
+  }
+  debugDiv.innerHTML += '<br>' + msg;
+}
+
+window.addEventListener('load', () => {
+  updateDebug('Страница загружена. Ждем PWA...');
+});

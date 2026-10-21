@@ -1,22 +1,26 @@
-const CACHE_VERSION = 'v17';
+const CACHE_VERSION = 'v18';
 const CACHE_NAME = `portfolio-card-${CACHE_VERSION}`;
 
 const urlsToCache = [
-  './',
-  './index.html',
-  './style.css',
-  './script.js',
-  './manifest.json',
-  './offline.html',
-  './404.html',
-  './icon-192.png',
-  './icon-512.png'
+  '/my-portfolio-card/',
+  '/my-portfolio-card/index.html',
+  '/my-portfolio-card/style.css',
+  '/my-portfolio-card/script.js',
+  '/my-portfolio-card/manifest.json',
+  '/my-portfolio-card/offline.html',
+  '/my-portfolio-card/404.html',
+  '/my-portfolio-card/icon-192.png',
+  '/my-portfolio-card/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(urlsToCache).catch(err => {
+        console.error('[SW] Ошибка кэширования (проверь, что все файлы существуют):', err);
+      });
+    })
   );
 });
 
@@ -47,7 +51,7 @@ self.addEventListener('fetch', event => {
       })
       .catch(() => {
         if (event.request.mode === 'navigate') {
-          return caches.match('./offline.html');
+          return caches.match('/my-portfolio-card/offline.html');
         }
         return caches.match(event.request);
       })
