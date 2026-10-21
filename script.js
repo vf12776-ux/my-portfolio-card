@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. PWA: Регистрация Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
+            navigator.serviceWorker.register('./sw.js')
                 .then(reg => console.log('SW зарегистрирован:', reg.scope))
                 .catch(err => console.log('Ошибка SW:', err));
         });
