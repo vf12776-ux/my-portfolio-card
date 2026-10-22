@@ -53,18 +53,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// --- ЭКРАННАЯ ДИАГНОСТИКА (Увидишь на телефоне) ---
-function updateDebug(msg) {
-  let debugDiv = document.getElementById('pwa-debug');
-  if (!debugDiv) {
-    debugDiv = document.createElement('div');
-    debugDiv.id = 'pwa-debug';
-    debugDiv.style.cssText = 'position:fixed; bottom:0; left:0; background:#ff0000; color:#ffffff; padding:15px; z-index:99999; font-size:14px; font-weight:bold; width:100%; text-align:center;';
-    document.body.appendChild(debugDiv);
-  }
-  debugDiv.innerHTML += '<br>' + msg;
-}
-
 window.addEventListener('load', () => {
   updateDebug('Страница загружена. Ждем PWA...');
 });
