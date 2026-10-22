@@ -1,7 +1,7 @@
-const CACHE_VERSION = 'v23';
+const CACHE_VERSION = 'v24';
 const CACHE_NAME = `portfolio-${CACHE_VERSION}`;
 
-const ASSETS = [
+const urlsToCache = [
   './',
   './index.html',
   './style.css',
@@ -11,34 +11,45 @@ const ASSETS = [
   './icon-512.png'
 ];
 
-self.addEventListener('install', (e) => {
+self.addEventListener('install', event => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
-});
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => 
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
   );
-  self.clients.claim();
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    fetch(e.request)
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    Promise.all([
+      clients.claim(),
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+    ])
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    fetch(event.request)
       .then(response => {
         if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then(cache => {
-            cache.put(e.request, responseClone);
+            cache.put(event.request, responseClone);
           });
         }
         return response;
       })
       .catch(() => {
-        return caches.match(e.request);
+        return caches.match(event.request);
       })
   );
 });

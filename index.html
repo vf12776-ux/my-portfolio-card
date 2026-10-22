@@ -144,8 +144,8 @@
         </div>
     </footer>
 
-    <script src="./script.js"></script>
-
+        <script src="./script.js"></script>
+    
     <script>
         let deferredPrompt;
         const installBtn = document.getElementById('install-btn');
@@ -153,8 +153,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW OK'))
-                    .catch(err => console.error('SW Fail', err));
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW failed:', err));
             });
         }
 
@@ -163,7 +163,7 @@
             deferredPrompt = e;
             if (installBtn) {
                 installBtn.style.display = 'inline-block';
-                console.log('PROMPT READY');
+                console.log('Install prompt ready');
             }
         });
 
@@ -172,7 +172,9 @@
                 if (!deferredPrompt) return;
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') installBtn.style.display = 'none';
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
                 deferredPrompt = null;
             });
         }
