@@ -1,62 +1,44 @@
-const CACHE_VERSION = 'v19';
-const CACHE_NAME = `portfolio-card-${CACHE_VERSION}`;
+const CACHE_VERSION = 'v23';
+const CACHE_NAME = `portfolio-${CACHE_VERSION}`;
 
-// Относительные пути работают везде: и в корне, и в подпапке
-const urlsToCache = [
+const ASSETS = [
   './',
   './index.html',
   './style.css',
   './script.js',
   './manifest.json',
-  './offline.html',
   './icon-192.png',
   './icon-512.png'
 ];
 
-self.addEventListener('install', event => {
+self.addEventListener('install', (e) => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache).catch(err => {
-        console.error('[SW] Ошибка кэширования:', err);
-        // Важно: если один файл не найден, SW все равно установится, 
-        // но этот файл не будет закэширован.
-      });
-    })
-  );
+  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    Promise.all([
-      clients.claim(),
-      caches.keys().then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            if (cacheName !== CACHE_NAME) return caches.delete(cacheName);
-          })
-        );
-      })
-    ])
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => 
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
   );
+  self.clients.claim();
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    fetch(event.request)
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    fetch(e.request)
       .then(response => {
         if (response.status === 200) {
           const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(e.request, responseClone);
+          });
         }
         return response;
       })
       .catch(() => {
-        // Для навигации показываем offline.html
-        if (event.request.mode === 'navigate') {
-          return caches.match('./offline.html');
-        }
-        return caches.match(event.request);
+        return caches.match(e.request);
       })
   );
 });
