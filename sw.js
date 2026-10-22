@@ -1,14 +1,15 @@
-const CACHE_VERSION = 'v25';
+const CACHE_VERSION = 'v26';
 const CACHE_NAME = `portfolio-${CACHE_VERSION}`;
 
+// Используем абсолютные пути относительно корня домена
 const urlsToCache = [
-  './',
-  './index.html',
-  './style.css',
-  './script.js',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  '/my-portfolio-card/',
+  '/my-portfolio-card/index.html',
+  '/my-portfolio-card/style.css',
+  '/my-portfolio-card/script.js',
+  '/my-portfolio-card/manifest.json',
+  '/my-portfolio-card/icon-192.png',
+  '/my-portfolio-card/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
