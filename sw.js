@@ -1,16 +1,16 @@
-const CACHE_VERSION = 'v18';
+const CACHE_VERSION = 'v19';
 const CACHE_NAME = `portfolio-card-${CACHE_VERSION}`;
 
+// Относительные пути работают везде: и в корне, и в подпапке
 const urlsToCache = [
-  '/my-portfolio-card/',
-  '/my-portfolio-card/index.html',
-  '/my-portfolio-card/style.css',
-  '/my-portfolio-card/script.js',
-  '/my-portfolio-card/manifest.json',
-  '/my-portfolio-card/offline.html',
-  '/my-portfolio-card/404.html',
-  '/my-portfolio-card/icon-192.png',
-  '/my-portfolio-card/icon-512.png'
+  './',
+  './index.html',
+  './style.css',
+  './script.js',
+  './manifest.json',
+  './offline.html',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', event => {
@@ -18,7 +18,9 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(urlsToCache).catch(err => {
-        console.error('[SW] Ошибка кэширования (проверь, что все файлы существуют):', err);
+        console.error('[SW] Ошибка кэширования:', err);
+        // Важно: если один файл не найден, SW все равно установится, 
+        // но этот файл не будет закэширован.
       });
     })
   );
@@ -50,8 +52,9 @@ self.addEventListener('fetch', event => {
         return response;
       })
       .catch(() => {
+        // Для навигации показываем offline.html
         if (event.request.mode === 'navigate') {
-          return caches.match('/my-portfolio-card/offline.html');
+          return caches.match('./offline.html');
         }
         return caches.match(event.request);
       })

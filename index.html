@@ -159,7 +159,63 @@
         </div>
     </footer>
 
-    <!-- ЕДИНСТВЕННЫЙ скрипт на странице -->
-    <script src="script.js"></script>
+       <!-- ЕДИНСТВЕННЫЙ скрипт на странице -->
+    <script src="./script.js"></script>
+
+    <!-- Логика PWA -->
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+        const iosHint = document.getElementById('ios-hint');
+
+        // Проверка iOS
+        const isIos = () => {
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            return /iphone|ipad|ipod/.test(userAgent);
+        };
+
+        if (isIos()) {
+            if (iosHint) iosHint.style.display = 'block';
+        }
+
+        // Перехват события установки
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn) {
+                installBtn.style.display = 'block'; // Показываем кнопку
+                console.log('[PWA] beforeinstallprompt сработал');
+            }
+        });
+
+        // Клик по кнопке установки
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`[PWA] Выбор пользователя: ${outcome}`);
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            });
+        }
+
+        // Регистрация Service Worker (ОТНОСИТЕЛЬНЫЙ ПУТЬ!)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('[SW] Успешно зарегистрирован:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('[SW] Ошибка регистрации:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
 </body>
 </html>
