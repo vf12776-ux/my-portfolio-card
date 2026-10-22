@@ -30,7 +30,8 @@
                     <li><a href="#portfolio" class="nav__link">Работы</a></li>
                     <li><a href="#contact" class="nav__link btn-contact">Связаться</a></li>
                     <!-- КНОПКА УСТАНОВКИ (скрыта по умолчанию) -->
-                    <li><button id="install-btn" class="install-btn" style="display: none;">📲 Установить</button></li>
+                    <!-- КНОПКА УСТАНОВКИ (всегда видна) -->
+<li><button id="install-btn" class="install-btn">📲 Установить</button></li>
                 </ul>
             </nav>
             <button class="burger-menu" aria-label="Меню">
@@ -164,57 +165,41 @@
 
     <!-- Логика PWA -->
     <script>
-        let deferredPrompt;
-        const installBtn = document.getElementById('install-btn');
-        const iosHint = document.getElementById('ios-hint');
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
 
-        // Проверка iOS
-        const isIos = () => {
-            const userAgent = window.navigator.userAgent.toLowerCase();
-            return /iphone|ipad|ipod/.test(userAgent);
-        };
+    // Перехват события установки (если браузер его отдаст)
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        console.log('[PWA] Событие установки получено');
+    });
 
-        if (isIos()) {
-            if (iosHint) iosHint.style.display = 'block';
-        }
-
-        // Перехват события установки
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            if (installBtn) {
-                installBtn.style.display = 'block'; // Показываем кнопку
-                console.log('[PWA] beforeinstallprompt сработал');
-            }
-        });
-
-        // Клик по кнопке установки
-        if (installBtn) {
-            installBtn.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
+    // Клик по кнопке
+    if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Если браузер отдал событие — показываем нативное окно
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                console.log(`[PWA] Выбор пользователя: ${outcome}`);
-                if (outcome === 'accepted') {
-                    installBtn.style.display = 'none';
-                }
+                console.log(`[PWA] Пользователь: ${outcome}`);
                 deferredPrompt = null;
-            });
-        }
+            } else {
+                // Если браузер НЕ отдал событие (Android) — показываем инструкцию
+                alert('Для установки:\n\n1. Нажмите меню браузера (⋮)\n2. Выберите "Добавить на главный экран"');
+            }
+        });
+    }
 
-        // Регистрация Service Worker (ОТНОСИТЕЛЬНЫЙ ПУТЬ!)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('[SW] Успешно зарегистрирован:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('[SW] Ошибка регистрации:', error);
-                    });
-            });
-        }
-    </script>
+    // Регистрация Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('[SW] OK:', reg.scope))
+                .catch(err => console.log('[SW] Error:', err));
+        });
+    }
+</script>
 </body>
 </html>
 </body>
