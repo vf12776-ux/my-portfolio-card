@@ -1,10 +1,10 @@
 // ==========================================
-// УНИВЕРСАЛЬНАЯ ЛОГИКА УСТАНОВКИ PWA
+// УНИВЕРСАЛЬНАЯ КНОПКА PWA (ГАРАНТИРОВАННЫЙ ПОКАЗ)
 // ==========================================
 
 let deferredPrompt;
 
-// 1. Создаем универсальную кнопку установки (плавающую, поверх всего)
+// 1. Создаем кнопку
 const installBtn = document.createElement('button');
 installBtn.id = 'universal-install-btn';
 installBtn.innerHTML = '📲 Установить приложение';
@@ -22,54 +22,43 @@ installBtn.style.cssText = `
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
     z-index: 10000;
     cursor: pointer;
-    transition: transform 0.2s;
-    display: none; /* Скрыта по умолчанию */
+    transition: all 0.3s ease;
+    display: none; /* Скрыта, пока не определим устройство */
 `;
 document.body.appendChild(installBtn);
 
-installBtn.addEventListener('mouseover', () => { installBtn.style.transform = 'scale(1.05)'; });
-installBtn.addEventListener('mouseout', () => { installBtn.style.transform = 'scale(1)'; });
-
-// 2. Определяем платформу
+// 2. Функция определения iOS
 function isIOS() {
-    return [
-        'iPad Simulator', 'iPhone Simulator', 'iPod Simulator',
-        'iPad', 'iPhone', 'iPod'
-    ].includes(navigator.platform)
-    || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
 
-// 3. Логика для iOS (Safari)
+// 3. Логика отображения и работы
 if (isIOS()) {
-    // В iOS нет события beforeinstallprompt, показываем инструкцию сразу
+    // Для iOS показываем кнопку сразу
     installBtn.style.display = 'block';
     installBtn.innerHTML = '📲 Добавить на экран «Домой»';
     
     installBtn.addEventListener('click', () => {
-        alert('Чтобы установить приложение:\n\n1. Нажмите кнопку "Поделиться" внизу браузера (значок квадрата со стрелкой).\n2. Прокрутите меню вниз и выберите "На экран «Домой»".');
+        alert('Инструкция для iPhone/iPad:\n\n1. Нажмите кнопку "Поделиться" (квадрат со стрелкой вверх) внизу экрана.\n2. Выберите в меню пункт "На экран «Домой»".');
     });
-} 
-// 4. Логика для Android/Desktop (Chrome, Edge, Samsung Internet и др.)
-else {
+} else {
+    // Для Android/Desktop ждем события установки
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        
-        // Показываем кнопку только если браузер поддерживает установку
-        installBtn.style.display = 'block';
-        console.log('[PWA] Кнопка установки активирована');
+        installBtn.style.display = 'block'; // Показываем кнопку только когда браузер готов
+        console.log('[PWA] Браузер готов к установке');
     });
 
     installBtn.addEventListener('click', async () => {
         if (!deferredPrompt) {
-            // Если событие не сработало (например, Firefox или старый браузер), даем инструкцию
-            alert('Ваш браузер может не поддерживать автоматическую установку. Попробуйте найти пункт "Установить приложение" в меню браузера.');
+            // Если событие еще не пришло, пробуем подождать или даем подсказку
+            alert('Идет подготовка к установке... Пожалуйста, попробуйте через несколько секунд или найдите пункт "Установить" в меню браузера.');
             return;
         }
 
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(`[PWA] Пользователь выбрал: ${outcome}`);
         
         if (outcome === 'accepted') {
             installBtn.style.display = 'none';
@@ -78,22 +67,17 @@ else {
     });
 }
 
-// 5. Скрываем кнопку после успешной установки (для всех ОС)
+// 4. Скрываем кнопку после установки
 window.addEventListener('appinstalled', () => {
-    console.log('[PWA] Приложение успешно установлено');
     installBtn.style.display = 'none';
     deferredPrompt = null;
 });
 
-// 6. Регистрация Service Worker
+// 5. Регистрация Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/my-portfolio-card/sw.js')
-            .then(registration => {
-                console.log('[SW] Успешно зарегистрирован:', registration.scope);
-            })
-            .catch(error => {
-                console.log('[SW] Ошибка регистрации:', error);
-            });
+            .then(registration => console.log('[SW] OK:', registration.scope))
+            .catch(error => console.log('[SW] Error:', error));
     });
 }
