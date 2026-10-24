@@ -183,20 +183,6 @@
         <!-- Ваш основной скрипт -->
     <script src="/my-portfolio-card/script.js"></script>
 
-    <!-- Регистрация Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/my-portfolio-card/sw.js')
-                    .then(registration => {
-                        console.log('[SW] Успешно зарегистрирован:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('[SW] Ошибка регистрации:', error);
-                    });
-            });
-        }
-    </script>
 </body>
 </body>
 </html>
