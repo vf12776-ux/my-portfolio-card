@@ -1,7 +1,6 @@
-const CACHE_VERSION = 'v26';
+const CACHE_VERSION = 'v27';
 const CACHE_NAME = `portfolio-${CACHE_VERSION}`;
 
-// Используем абсолютные пути относительно корня домена
 const urlsToCache = [
   '/my-portfolio-card/',
   '/my-portfolio-card/index.html',
@@ -9,14 +8,14 @@ const urlsToCache = [
   '/my-portfolio-card/script.js',
   '/my-portfolio-card/manifest.json',
   '/my-portfolio-card/icon-192.png',
-  '/my-portfolio-card/icon-512.png'
+  '/my-portfolio-card/icon-512.png',
+  '/my-portfolio-card/offline.html'
 ];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
 });
 
@@ -39,18 +38,8 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        return caches.match(event.request);
-      })
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
   );
 });

@@ -6,13 +6,13 @@
     <title>Имя Фамилия | Профессия</title>
     <meta name="description" content="Сайт-визитка специалиста. Услуги, портфолио, контакты.">
 
+    <!-- PWA Meta Tags -->
     <link rel="manifest" href="/my-portfolio-card/manifest.json">
     <meta name="theme-color" content="#2563eb">
+    <link rel="icon" type="image/png" sizes="192x192" href="/my-portfolio-card/icon-192.png">
+    <link rel="apple-touch-icon" href="/my-portfolio-card/icon-192.png">
 
-    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
-
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="/my-portfolio-card/style.css">
 </head>
 <body>
 
@@ -180,5 +180,23 @@
             });
         }
     </script>
+        <!-- Ваш основной скрипт -->
+    <script src="/my-portfolio-card/script.js"></script>
+
+    <!-- Регистрация Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/my-portfolio-card/sw.js')
+                    .then(registration => {
+                        console.log('[SW] Успешно зарегистрирован:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('[SW] Ошибка регистрации:', error);
+                    });
+            });
+        }
+    </script>
+</body>
 </body>
 </html>
