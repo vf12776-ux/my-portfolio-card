@@ -1,69 +1,36 @@
 // ==========================================
-// PWA: МОДАЛЬНОЕ ОКНО УСТАНОВКИ
+// УНИВЕРСАЛЬНАЯ ЛОГИКА УСТАНОВКИ PWA
 // ==========================================
 
 let deferredPrompt;
 
-// 1. Создание модального окна (динамически, не нужно править HTML)
-const modal = document.createElement('div');
-modal.id = 'pwa-install-modal';
-modal.style.cssText = `
-    display: none;
+// 1. Создаем универсальную кнопку установки (плавающую, поверх всего)
+const installBtn = document.createElement('button');
+installBtn.id = 'universal-install-btn';
+installBtn.innerHTML = '📲 Установить приложение';
+installBtn.style.cssText = `
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 99999;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
+    bottom: 20px;
+    right: 20px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    z-index: 10000;
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: none; /* Скрыта по умолчанию */
 `;
+document.body.appendChild(installBtn);
 
-modal.innerHTML = `
-    <div style="
-        background: white;
-        padding: 30px;
-        border-radius: 16px;
-        text-align: center;
-        max-width: 400px;
-        width: 90%;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    ">
-        <div style="font-size: 48px; margin-bottom: 15px;">📱</div>
-        <h2 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 22px;">Установить приложение</h2>
-        <p style="margin: 0 0 25px 0; color: #666; font-size: 15px; line-height: 1.5;">
-            Добавьте визитку на главный экран для быстрого доступа
-        </p>
-        <button id="pwa-install-btn" style="
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 14px 32px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-            transition: background 0.2s;
-        ">Установить</button>
-        <button id="pwa-close-btn" style="
-            background: transparent;
-            color: #999;
-            border: none;
-            padding: 10px;
-            font-size: 14px;
-            cursor: pointer;
-            width: 100%;
-        ">Позже</button>
-    </div>
-`;
+installBtn.addEventListener('mouseover', () => { installBtn.style.transform = 'scale(1.05)'; });
+installBtn.addEventListener('mouseout', () => { installBtn.style.transform = 'scale(1)'; });
 
-document.body.appendChild(modal);
-
-// 2. Определение iOS
+// 2. Определяем платформу
 function isIOS() {
     return [
         'iPad Simulator', 'iPhone Simulator', 'iPod Simulator',
@@ -72,76 +39,53 @@ function isIOS() {
     || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
 }
 
-// 3. Для iOS — показываем инструкцию
+// 3. Логика для iOS (Safari)
 if (isIOS()) {
-    const iosHint = document.createElement('div');
-    iosHint.style.cssText = `
-        display: none;
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.9);
-        color: white;
-        padding: 15px 25px;
-        border-radius: 12px;
-        font-size: 14px;
-        z-index: 10000;
-        text-align: center;
-        max-width: 90%;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    `;
-    iosHint.innerHTML = 'Чтобы установить: нажмите <b>Поделиться</b> ⎋ и выберите <b>На экран «Домой»</b>';
-    document.body.appendChild(iosHint);
+    // В iOS нет события beforeinstallprompt, показываем инструкцию сразу
+    installBtn.style.display = 'block';
+    installBtn.innerHTML = '📲 Добавить на экран «Домой»';
     
-    setTimeout(() => { 
-        iosHint.style.display = 'block'; 
-    }, 2000);
-    
-    iosHint.addEventListener('click', () => { 
-        iosHint.style.display = 'none'; 
+    installBtn.addEventListener('click', () => {
+        alert('Чтобы установить приложение:\n\n1. Нажмите кнопку "Поделиться" внизу браузера (значок квадрата со стрелкой).\n2. Прокрутите меню вниз и выберите "На экран «Домой»".');
+    });
+} 
+// 4. Логика для Android/Desktop (Chrome, Edge, Samsung Internet и др.)
+else {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Показываем кнопку только если браузер поддерживает установку
+        installBtn.style.display = 'block';
+        console.log('[PWA] Кнопка установки активирована');
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+            // Если событие не сработало (например, Firefox или старый браузер), даем инструкцию
+            alert('Ваш браузер может не поддерживать автоматическую установку. Попробуйте найти пункт "Установить приложение" в меню браузера.');
+            return;
+        }
+
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`[PWA] Пользователь выбрал: ${outcome}`);
+        
+        if (outcome === 'accepted') {
+            installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
     });
 }
 
-// 4. Для Android/Desktop — перехватываем событие установки
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    // Показываем модальное окно через 3 секунды после загрузки
-    setTimeout(() => {
-        modal.style.display = 'flex';
-        console.log('[PWA] Модальное окно показано');
-    }, 3000);
-});
-
-// 5. Обработчики кнопок модального окна
-const installBtn = document.getElementById('pwa-install-btn');
-const closeBtn = document.getElementById('pwa-close-btn');
-
-installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`[PWA] Пользователь выбрал: ${outcome}`);
-    
-    modal.style.display = 'none';
-    deferredPrompt = null;
-});
-
-closeBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-});
-
-// 6. Скрыть модальное окно после успешной установки
+// 5. Скрываем кнопку после успешной установки (для всех ОС)
 window.addEventListener('appinstalled', () => {
-    console.log('[PWA] Приложение установлено');
-    modal.style.display = 'none';
+    console.log('[PWA] Приложение успешно установлено');
+    installBtn.style.display = 'none';
     deferredPrompt = null;
 });
 
-// 7. Регистрация Service Worker
+// 6. Регистрация Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/my-portfolio-card/sw.js')
