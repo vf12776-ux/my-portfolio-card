@@ -1,86 +1,198 @@
 // ==========================================
-// ОТЛАДОЧНАЯ ВЕРСИЯ КНОПКИ PWA
+// МОДАЛЬНОЕ ОКНО PWA ДЛЯ ANDROID/CHROME
 // ==========================================
-
-console.log('[DEBUG] Скрипт начал выполняться');
 
 let deferredPrompt;
 
-// 1. Создаем кнопку
-const installBtn = document.createElement('button');
-installBtn.id = 'universal-install-btn';
-installBtn.innerHTML = '📲 Установить приложение';
-installBtn.style.cssText = `
-    position: fixed !important;
-    bottom: 20px !important;
-    right: 20px !important;
-    background: #2563eb !important;
-    color: white !important;
-    border: none !important;
-    padding: 12px 24px !important;
-    border-radius: 50px !important;
-    font-size: 16px !important;
-    font-weight: bold !important;
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4) !important;
-    z-index: 999999 !important;
-    cursor: pointer !important;
-    display: block !important; /* ПРИНУДИТЕЛЬНО ПОКАЗЫВАЕМ */
+// 1. Создаем модальное окно
+const modal = document.createElement('div');
+modal.id = 'pwa-modal';
+modal.style.cssText = `
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 999999;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
 `;
-document.body.appendChild(installBtn);
 
-console.log('[DEBUG] Кнопка создана и добавлена в DOM');
+modal.innerHTML = `
+    <div style="
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        animation: modalFadeIn 0.3s ease;
+    ">
+        <div style="font-size: 64px; margin-bottom: 20px;">📱</div>
+        <h2 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 24px; font-weight: 700;">
+            Установить приложение
+        </h2>
+        <p style="margin: 0 0 25px 0; color: #666; font-size: 15px; line-height: 1.6;">
+            Добавьте визитку на главный экран для быстрого доступа
+        </p>
+        
+        <div id="pwa-install-section" style="display: none;">
+            <button id="pwa-install-btn" style="
+                background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+                color: white;
+                border: none;
+                padding: 16px 32px;
+                border-radius: 12px;
+                font-size: 17px;
+                font-weight: 600;
+                cursor: pointer;
+                width: 100%;
+                margin-bottom: 12px;
+                box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+                transition: transform 0.2s;
+            ">⚡ Установить</button>
+        </div>
+        
+        <div id="pwa-instruction-section" style="display: none;">
+            <div style="
+                background: #f8fafc;
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+                text-align: left;
+            ">
+                <p style="margin: 0 0 12px 0; color: #333; font-size: 14px; font-weight: 600;">
+                    Как установить:
+                </p>
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 24px; margin-right: 12px;">⋮</span>
+                    <span style="color: #555; font-size: 14px;">Нажмите на три точки в браузере</span>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <span style="font-size: 24px; margin-right: 12px;">📲</span>
+                    <span style="color: #555; font-size: 14px;">Выберите "Установить приложение"</span>
+                </div>
+            </div>
+            <p style="margin: 0; color: #999; font-size: 12px;">
+                Совет: откройте сайт в обычном режиме и посетите 2-3 раза для автоматической установки
+            </p>
+        </div>
+        
+        <button id="pwa-close-btn" style="
+            background: transparent;
+            color: #999;
+            border: none;
+            padding: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        ">Закрыть</button>
+    </div>
+`;
 
-// 2. Проверка iOS
+document.body.appendChild(modal);
+
+// Добавляем анимацию
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+`;
+document.head.appendChild(style);
+
+// 2. Определение iOS
 function isIOS() {
-    const result = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    console.log('[DEBUG] isIOS:', result, 'UserAgent:', navigator.userAgent);
-    return result;
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
 
-// 3. Логика
+// 3. Логика для iOS
 if (isIOS()) {
-    console.log('[DEBUG] Это iOS, показываем инструкцию');
-    installBtn.innerHTML = '📲 Добавить на экран «Домой»';
+    modal.querySelector('h2').textContent = 'Добавить на экран «Домой»';
+    document.getElementById('pwa-instruction-section').style.display = 'block';
+    document.getElementById('pwa-instruction-section').innerHTML = `
+        <div style="
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: left;
+        ">
+            <p style="margin: 0 0 12px 0; color: #333; font-size: 14px; font-weight: 600;">
+                Как установить на iPhone/iPad:
+            </p>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 24px; margin-right: 12px;">⎋</span>
+                <span style="color: #555; font-size: 14px;">Нажмите "Поделиться"</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <span style="font-size: 24px; margin-right: 12px;">🏠</span>
+                <span style="color: #555; font-size: 14px;">Выберите "На экран «Домой»"</span>
+            </div>
+        </div>
+    `;
     
-    installBtn.addEventListener('click', () => {
-        alert('Инструкция для iPhone/iPad:\n\n1. Нажмите кнопку "Поделиться" (квадрат со стрелкой вверх) внизу экрана.\n2. Выберите в меню пункт "На экран «Домой»".');
-    });
-} else {
-    console.log('[DEBUG] Это не iOS, ждем beforeinstallprompt');
-    
+    setTimeout(() => {
+        modal.style.display = 'flex';
+    }, 2000);
+} 
+// 4. Логика для Android/Desktop
+else {
+    // Ждем события установки
     window.addEventListener('beforeinstallprompt', (e) => {
-        console.log('[DEBUG] beforeinstallprompt сработал!');
         e.preventDefault();
         deferredPrompt = e;
+        
+        // Если событие пришло — показываем кнопку установки
+        document.getElementById('pwa-install-section').style.display = 'block';
+        document.getElementById('pwa-instruction-section').style.display = 'none';
+        
+        setTimeout(() => {
+            modal.style.display = 'flex';
+        }, 2000);
     });
 
-    installBtn.addEventListener('click', async () => {
-        console.log('[DEBUG] Клик по кнопке, deferredPrompt:', !!deferredPrompt);
-        
+    // Если через 3 секунды событие не пришло — показываем инструкцию
+    setTimeout(() => {
         if (!deferredPrompt) {
-            alert('Браузер еще не готов к установке. Подождите несколько секунд и попробуйте снова.');
-            return;
+            document.getElementById('pwa-install-section').style.display = 'none';
+            document.getElementById('pwa-instruction-section').style.display = 'block';
+            modal.style.display = 'flex';
         }
+    }, 3000);
 
+    // Обработчик кнопки установки
+    document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        console.log('[DEBUG] Результат:', outcome);
         
         if (outcome === 'accepted') {
-            installBtn.style.display = 'none';
+            modal.style.display = 'none';
         }
         deferredPrompt = null;
     });
 }
 
-// 4. После установки
+// 5. Закрытие модального окна
+document.getElementById('pwa-close-btn').addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+// 6. После установки
 window.addEventListener('appinstalled', () => {
-    console.log('[DEBUG] Приложение установлено');
-    installBtn.style.display = 'none';
+    modal.style.display = 'none';
     deferredPrompt = null;
 });
 
-// 5. Регистрация SW
+// 7. Регистрация SW
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/my-portfolio-card/sw.js')
@@ -88,5 +200,3 @@ if ('serviceWorker' in navigator) {
             .catch(error => console.log('[SW] Error:', error));
     });
 }
-
-console.log('[DEBUG] Скрипт полностью загружен');
